@@ -1,0 +1,187 @@
+{% include 'includes/scripts.html' %}
+{% include 'layout.html' %}
+
+
+<div class="container bg-gradient-primary">
+    <div class="card o-hidden border-0 shadow-lg my-5">
+        <div class="card-body p-0">
+            <!-- Nested Row within Card Body -->
+            <div class="row">
+                <div class="col-lg-6 d-none d-lg-block bg-register-image">
+                    <div class="p-2">
+                        <div class="text-center">
+                            <h2 class="heading-section">Kamerayı Aç</h2>
+                            <label class="switch">
+                                <input type="checkbox" id="cam" onclick="getValue()"/>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                        <div class="mt-2">
+                            <img id="camera" src="{{ url_for('video_feed') }}" width="530" height="350"/>
+                        </div>
+
+                        <hr/>
+
+
+                    </div>
+
+                </div>
+                <div class="col-lg-6">
+                    <div class="p-5">
+                        <div class="text-center">
+                            <h1 class="h4 text-gray-900 mb-4">Hesap Oluştur</h1>
+                            <!--Flash Mesaj Yeri -->
+                            <div>
+                                {% with messages = get_flashed_messages(with_categories=true) %}
+                                    {% if messages %}
+                                        {% for category, message in messages %}
+                                            <div id="userInformation" class="alert alert-{{ category }}">
+                                                {{ message }}
+                                            </div>
+                                        {% endfor %}
+                                    {% endif %}
+                                {% endwith %}
+                            </div>
+                            <!-- Flash Mesaj Yeri Sonu -->
+                        </div>
+                        <form method="post" action="/register" class="user my-5">
+                            <div class="form-group row">
+                                <div class="col-sm-6 mb-3 mb-sm-0">
+                                    <input type="text" maxlength="40" minlength="3"
+                                           required
+                                           class="form-control form-control-user" id="FirstName"
+                                           name="firstname"
+                                           placeholder="First Name" value="Hakan">
+                                </div>
+                                <div class="col-sm-6">
+                                    <input type="text" maxlength="40" minlength="2"
+                                           required
+                                           class="form-control form-control-user" id="LastName"
+                                           name="lastname"
+                                           placeholder="Last Name" value="GÜL">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col">
+                                    <select class="form-control form-select" aria-label="Default select"
+                                            required
+                                            name="user_role">
+                                        <option>Role</option>
+                                        <option selected value="1">Admin</option>
+                                        <option value="2">User</option>
+                                    </select>
+
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-sm-6 mb-3 mb-sm-0">
+                                    <input type="tel" class="form-control form-control-user" id="Id_number"
+                                           required
+                                           name="tc"
+                                           placeholder="TC Kimlik No" maxlength="11" minlength="11" value="12345678901">
+                                </div>
+                                <div class="col-sm-6">
+                                    <input type="email" class="form-control form-control-user" id="InputEmail"
+                                           name="email" required
+                                           placeholder="Email Address" value="hakanngul@icloud.com">
+                                </div>
+                            </div>
+                            <div class="form-group row ">
+                                <div class="col-sm-6 mb-3 mb-sm-0">
+                                    <input type="password" maxlength="16" minlength="8"
+                                           name="password" required
+                                           class="form-control form-control-user"
+                                           id="InputPassword" placeholder="Password" value="123456">
+                                </div>
+                                <div class="col-sm-6">
+                                    <input type="password" maxlength="16" minlength="8"
+                                           name="repassword" required
+                                           class="form-control form-control-user"
+                                           id="RepeatPassword" placeholder="Repeat Password" value="123456">
+                                </div>
+                            </div>
+                            <hr>
+                            <div>
+                                <button type="submit" id="register" class="btn btn-primary btn-user btn-block" disabled>
+                                    Kayıt Ol
+                                </button>
+                            </div>
+                        </form>
+                        <hr>
+                        <div class="text-center ">
+                            <a class="small" href="forgot-password.html">Forgot Password?</a>
+                        </div>
+                        <div class="text-center">
+                            <a class="small" href="login.html">Already have an account? Login!</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    function getValue() {
+        const isChecked = document.getElementById("cam").checked;
+
+        if (isChecked) {
+            console.log("Input is checked");
+            kamera_ac();
+        } else {
+            console.log("Input is NOT checked");
+            kamera_kapat();
+        }
+    }
+
+    function sorguYap() {
+        const url = '/sorgu_yap';
+        $.ajax({
+            type: 'GET',
+            url: url,
+            error: function (data) {
+                console.log(data);
+                alert('Kişi Bulunamadı!');
+            }
+        }).done(async function (data) {
+            console.log(data)
+            document.getElementById("login_user").innerText = data.result;
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            document.getElementById("cam").checked = false;
+            kamera_kapat();
+            location.href = "/dashboard";
+        })
+    }
+
+    function kamera_ac() {
+        const url = '/open_cam';
+        {#const openCam = document.getElementById("register").disabled = false;#}
+
+        $.ajax({
+            type: "GET",
+            url: url,
+            success: function (data) {
+                console.log(data);
+                document.getElementById("register").disabled = false;
+                document.getElementById("camera").setAttribute("style", "opacity:1;");
+                $('#camera').attr('src', "{{ url_for('video_feed') }}");
+            }
+        });
+    }
+
+    function kamera_kapat() {
+        const url = '/close_cam';
+        $.ajax({
+            type: "GET",
+            url: url,
+            success: function (data) {
+                console.log(data)
+                document.getElementById("register").disabled = true;
+
+                document.getElementById("camera").setAttribute("style", "opacity:0.1;");
+                {#$('#camera').attr('src', "/static/img/440x350.png");#}
+            }
+        });
+    }
+</script>

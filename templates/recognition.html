@@ -1,0 +1,81 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+    <div class="content-section mt-5">
+        <div class="row">
+            <div class="col-md-4">
+                <!--Flash Mesaj Yeri -->
+                <div>
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div id="userInformation" class="alert alert-{{ category }}">
+                                    {{ message }}
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+                </div>
+                <!-- Flash Mesaj Yeri Sonu -->
+                <button id="startCam" class="btn btn-primary">Kamerayı Aç</button>
+                <button id="stopCam" class="btn btn-danger">Kamerayı Kapat</button>
+                <h5 class="mt-2">Kamera Durumu : <span class="camState" id="camState"></span></h5>
+                <div>
+                    <button id="sorguYap" class="btn btn-info">Sorgu Yap</button>
+                </div>
+
+            </div>
+            <div class="col-md-8">
+                <img id="placeHolderImage" src="{{ url_for('video_feed') }}" alt="" width="800px" height="550px">
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block script %}
+
+    <script>
+        $(document).ready(function () {
+            $(document).on('click', '#startCam', function () {
+                const url = '/open_cam';
+                $.ajax({
+                    type: "GET",
+                    url: url
+                }).done(function (data) {
+                    if (data.code === 0) {
+                        $('#placeHolderImage').attr('src', "{{ url_for('video_feed') }}");
+                        $('#camState').html("Kamera Açıldı.");
+                    } else {
+                        $('#placeHolderImage').attr('src', "{{ url_for('video_feed') }}");
+                        $('#camState').html("Kamera Zaten Açık.");
+                    }
+
+                })
+            });
+            $(document).on('click', '#sorguYap', function () {
+                const url = '/sorgu_yap';
+                $.ajax({
+                    type: "GET",
+                    url: url
+                });
+            });
+            $(document).on('click', '#stopCam', function () {
+                const url = '/close_cam';
+                $.ajax({
+                    type: 'GET',
+                    url: url
+                }).done(function (data) {
+
+                    if (data.code === 0) {
+                        $('#camState').html("Kamera Kapandı.");
+                        $('#placeHolderImage').attr('src', '../static/800x550.png')
+                    } else {
+                        $('#camState').html("Kamera Zaten Kapalı");
+                        $('#placeHolderImage').attr('src', '../static/800x550.png')
+                    }
+                });
+            });
+        });
+
+    </script>
+{% endblock %}

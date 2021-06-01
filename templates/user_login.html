@@ -1,0 +1,119 @@
+{% include 'layout.html' %}
+{% include 'includes/scripts.html' %}
+
+
+{% block container %}
+    <div class="container">
+        <!-- Outer Row -->
+        <div class="row justify-content-center">
+            <div class="col-xl-10 col-lg-12 col-md-9">
+                <div class="card o-hidden border-0 shadow-lg my-5">
+                    <div class="card-body p-0">
+                        <!-- Nested Row within Card Body -->
+                        <div class="row">
+                            <div class="col-lg-6 d-none d-lg-block bg-login-image">
+                                <div class="p-2">
+                                    <div class="text-center">
+                                        <h2 class="heading-section">Kameradan Giriş Yap</h2>
+                                        <label class="switch">
+                                            <input type="checkbox" id="cam" onclick="getValue()"/>
+                                            <span class="slider round"></span>
+                                        </label>
+                                    </div>
+                                    <div class="mt-2">
+                                        <img id="camera" src="{{ url_for('video_feed') }}" width="440" height="350"/>
+                                    </div>
+
+                                    <hr/>
+
+                                    <div class="text-center mt-5">
+                                        <h2 class="bg-gradient-info text-gray-300">Hoş Geldiniz
+                                            <span id="login_user">Username</span></h2>
+                                        <a class="btn bg-gradient-danger text-gray-300  btn-user btn-block"
+                                           href="#" onclick="sorguYap()">Kamera Girişi</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="p-5">
+                                    <div class="text-center">
+                                        <h1 class="h4 text-gray-900 mb-4">Son Giriş Yapılan Zamanlar</h1>
+                                        <p id="user_log"></p>
+                                    </div>
+
+                                    <hr class=" mt-lg-5"/>
+                                    <div class="text-center  mt-lg-5">
+                                        <a class="small" href="/login">Go to Admin Login</a>
+                                    </div>
+                                    <div class="text-center">
+                                        <a class="small" href="/register">Create an Account!</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function getValue() {
+            const isChecked = document.getElementById("cam").checked;
+
+            if (isChecked) {
+                console.log("Input is checked");
+                kamera_ac();
+            } else {
+                console.log("Input is NOT checked");
+                kamera_kapat();
+            }
+        }
+
+        function sorguYap() {
+            const url = '/user_sorgu_yap';
+            $.ajax({
+                type: 'GET',
+                url: url,
+                error: function (data) {
+                    console.log(data);
+                    alert('Kişi Bulunamadı!');
+                }
+            }).done(async function (data) {
+                console.log(data)
+                document.getElementById("login_user").innerText = data.result;
+                document.getElementById("user_log").innerText = data.user_log;
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                document.getElementById("cam").checked = false;
+                kamera_kapat();
+                {#location.href = "/dashboard";#}
+            })
+        }
+
+        function kamera_ac() {
+            const url = '/open_cam';
+            $.ajax({
+                type: "GET",
+                url: url,
+                success: function (data) {
+                    console.log(data);
+                    document.getElementById("camera").setAttribute("style", "opacity:1;");
+                    $('#camera').attr('src', "{{ url_for('video_feed') }}");
+                }
+            });
+        }
+
+        function kamera_kapat() {
+            const url = '/close_cam';
+            $.ajax({
+                type: "GET",
+                url: url,
+                success: function (data) {
+                    console.log(data)
+                    document.getElementById("camera").setAttribute("style", "opacity:0.1;");
+                    {#$('#camera').attr('src', "/static/img/440x350.png");#}
+                }
+            });
+        }
+    </script>
+{% endblock %}

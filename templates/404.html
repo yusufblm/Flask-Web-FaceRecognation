@@ -1,0 +1,21 @@
+{#{% extends '_dashboard.html' %}#}
+
+{% include 'includes/scripts.html' %}
+
+{% block content %}
+    <!-- Begin Page Content -->
+    <div class="container-fluid mt-lg-5">
+
+        <!-- 404 Error Text -->
+        <div class="text-center">
+            <div class="error mx-auto" data-text="404">404</div>
+            <p class="lead text-gray-800 mb-5">Sayfa Bulunamadı</p>
+            <p class="text-gray-500 mb-0">
+                Sayfa kaldırılmış veya değiştirilmiş olabilir.
+            </p>
+            <a href="/dashboard">&larr; Panele Geri Dönün</a>
+        </div>
+
+    </div>
+    <!-- /.container-fluid -->
+{% endblock content %}
